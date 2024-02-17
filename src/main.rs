@@ -1,12 +1,13 @@
 mod database;
 mod services;
+mod models;
+mod handlers;
 use axum::{
     routing::get,
     Router,
     // Json,
 };
-use std::net::SocketAddr;
-
+use handlers::services_handler;
 
 #[tokio::main]
 async fn main() {
@@ -17,15 +18,14 @@ async fn main() {
 
     let app = Router::new()
         .route("/", get(index))
-        .route("/services", get(get_all_services));
+        .route("/services", get(services_handler::get_services_handler));
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
-    println!("Listening on {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    let addr = "0.0.0.0:8080";
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    let local_addr = listener.local_addr().unwrap();
+    println!("Running app on: {}", local_addr);
 
+    axum::serve(listener, app).await.unwrap();
 }
 
 // App initializer

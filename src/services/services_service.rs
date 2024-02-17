@@ -1,11 +1,11 @@
+use std::error::Error;
+use mysql::prelude::Queryable;
 use crate::database::db_connection;
-use axum::Json;
-mod se
+use crate::models::services_model::Services;
 
 // use mysql::*;
-pub async fn get_services() -> Result<Json<Vec<models::Services>>, Box<dyn std::error::Error>> {
-    println!("Retrieving services...");
-    let conn = db_connection();
+pub async fn get_services() -> Result<Vec<Services>, Box<dyn Error>> {
+    let mut conn = db_connection()?;
     let services = conn.query_map(
         "SELECT ServiceID, Name, Description, Price, Duration FROM Services",
         |(
@@ -27,5 +27,5 @@ pub async fn get_services() -> Result<Json<Vec<models::Services>>, Box<dyn std::
     for service in &services {
         println!("Result: {:?}", service);
     }
-    Ok(Json(services))
+    Ok(services)
 }

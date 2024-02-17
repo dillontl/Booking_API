@@ -1,8 +1,10 @@
+use serde::{Deserialize, Serialize};
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Services {
-    service_id: i32,
-    name: String,
-    description: String,
-    price: f64,
-    duration: f64,
+    pub(crate) service_id: i32,
+    pub(crate) name: String,
+    pub(crate) description: String,
+    pub(crate) price: f64,
+    pub(crate) duration: f64,
 }
