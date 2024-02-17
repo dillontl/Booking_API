@@ -5,9 +5,9 @@ mod handlers;
 use axum::{
     routing::get,
     Router,
-    // Json,
 };
 use handlers::services_handler;
+use crate::handlers::services_handler::add_services_handler;
 
 #[tokio::main]
 async fn main() {
@@ -18,7 +18,9 @@ async fn main() {
 
     let app = Router::new()
         .route("/", get(index))
-        .route("/services", get(services_handler::get_services_handler));
+        .route("/services",
+               get(services_handler::get_services_handler)
+                   .post(add_services_handler));
 
     let addr = "0.0.0.0:8080";
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
@@ -30,5 +32,5 @@ async fn main() {
 
 // App initializer
 async fn index() -> &'static str {
-    "Booking API - Built by OurTek Systems"
+    "Booking API - Built by Ourtek Systems"
 }
