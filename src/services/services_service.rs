@@ -4,7 +4,7 @@ use mysql::prelude::Queryable;
 use chrono::{DateTime, Utc};
 use log::{error, info};
 use crate::database::db_connection;
-use crate::models::services_model::{EditService, NewService, Services};
+use crate::models::services_model::{DeleteService, EditService, NewService, Services};
 
 pub async fn get_services() -> Result<Vec<Services>, Box<dyn Error>> {
     let mut conn = db_connection()?;
@@ -73,6 +73,28 @@ pub fn edit_services( services: &[EditService]) -> Result<(), Box<dyn Error>> {
             }
             Err(e) => {
                 error!("Failed to update service with ID {}: {}", service.service_id, e);
+                return Err(Box::new(e));
+            }
+        }
+    }
+
+    Ok(())
+}
+
+pub fn delete_services(services: &[DeleteService]) -> Result<(), Box<dyn Error>> {
+    let mut conn = db_connection()?;
+
+    for service in services {
+        let query = r"DELETE FROM Services WHERE ServiceID = :service_id";
+        match conn.exec_drop(query, params! {
+            "service_id" => &service.service_id,
+        }) {
+            Ok(_) => {
+                info!("Service with ID {} deleted successfully", service.service_id);
+                println!("Service with ID {} deleted successfully", service.service_id);
+            }
+            Err(e) => {
+                error!("Failed to delete service with ID {}: {}", service.service_id, e);
                 return Err(Box::new(e));
             }
         }

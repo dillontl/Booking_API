@@ -4,8 +4,8 @@ use axum::{
     response::IntoResponse,
 };
 use log::error;
-use crate::models::services_model::{EditServicesInput, ServicesInput};
-use crate::services::services_service::{add_services, edit_services, get_services};
+use crate::models::services_model::{DeleteServicesInput, EditServicesInput, ServicesInput};
+use crate::services::services_service::{add_services, delete_services, edit_services, get_services};
 
 pub async fn get_services_handler() -> impl IntoResponse {
     match get_services().await {
@@ -43,6 +43,21 @@ pub async fn edit_services_handler(Json(edit_services_input): Json<EditServicesI
         Err(e) => {
             error!("Failed to edit services: {}", e);
             (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to edit services: {}", e)).into_response()
+        }
+    }
+}
+
+pub async fn delete_services_handler(Json(delete_services_input): Json<DeleteServicesInput>) -> impl IntoResponse {
+    let services = match delete_services_input {
+        DeleteServicesInput::Single(service) => vec![service],
+        DeleteServicesInput::Multiple(services) => services,
+    };
+
+    match delete_services(&services) {
+        Ok(_) => (StatusCode::OK, "Services deleted successfully").into_response(),
+        Err(e) => {
+            error!("Failed to delete services: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to delete services: {}", e)).into_response()
         }
     }
 }
