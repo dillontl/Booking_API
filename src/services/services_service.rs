@@ -24,8 +24,6 @@ pub async fn get_services() -> Result<Vec<Services>, Box<dyn Error>> {
             }
         },
     )?;
-    for service in &services {
-        println!("Result: {:?}", service);
-    }
+    println!("Successfully retrieved services!");
     Ok(services)
 }
