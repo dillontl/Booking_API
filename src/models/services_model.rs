@@ -29,6 +29,11 @@ pub struct EditService {
     pub(crate) updated_at: Option<DateTime<Utc>>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DeleteService {
+    pub(crate) service_id: i32,
+}
+
 #[derive(Deserialize)]
 #[serde(untagged)]
 pub(crate) enum ServicesInput {
@@ -41,4 +46,11 @@ pub(crate) enum ServicesInput {
 pub(crate) enum EditServicesInput {
     Single(EditService),
     Multiple(Vec<EditService>),
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
+pub(crate) enum DeleteServicesInput {
+    Single(DeleteService),
+    Multiple(Vec<DeleteService>),
 }
