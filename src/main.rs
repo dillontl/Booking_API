@@ -2,13 +2,13 @@ mod database;
 mod services;
 mod models;
 mod handlers;
+
 use axum::{
     routing::get,
     Router,
 };
 use handlers::services_handler;
-use crate::handlers::services_handler::add_services_handler;
-
+use crate::handlers::services_handler::{add_services_handler, edit_services_handler};
 #[tokio::main]
 async fn main() {
     // Initialize DB Connection
@@ -20,7 +20,8 @@ async fn main() {
         .route("/", get(index))
         .route("/services",
                get(services_handler::get_services_handler)
-                   .post(add_services_handler));
+                   .post(add_services_handler)
+                   .put(edit_services_handler));
 
     let addr = "0.0.0.0:8080";
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();

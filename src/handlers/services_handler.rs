@@ -3,21 +3,17 @@ use axum::{
     http::StatusCode,
     response::IntoResponse,
 };
-use serde::Deserialize;
-use crate::services::services_service::{add_services, get_services};
-use crate::models::services_model::{NewService};
-
-#[derive(Deserialize)]
-#[serde(untagged)]
-pub(crate) enum ServicesInput {
-    Single(NewService),
-    Multiple(Vec<NewService>),
-}
+use log::error;
+use crate::models::services_model::{EditServicesInput, ServicesInput};
+use crate::services::services_service::{add_services, edit_services, get_services};
 
 pub async fn get_services_handler() -> impl IntoResponse {
     match get_services().await {
         Ok(services) => (StatusCode::OK, Json(services)).into_response(),
-        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error").into_response(),
+        Err(e) => {
+            error!("Failed to get services: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to get services: {}", e)).into_response()
+        }
     }
 }
 
@@ -29,6 +25,24 @@ pub async fn add_services_handler(Json(services_input): Json<ServicesInput>) -> 
 
     match add_services(&services) {
         Ok(_) => (StatusCode::OK, "Services added successfully").into_response(),
-        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to add services").into_response(),
+        Err(e) => {
+            error!("Failed to add services: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to add services: {}", e)).into_response()
+        }
+    }
+}
+
+pub async fn edit_services_handler(Json(edit_services_input): Json<EditServicesInput>) -> impl IntoResponse {
+    let services = match edit_services_input {
+        EditServicesInput::Single(service) => vec![service],
+        EditServicesInput::Multiple(services) => services,
+    };
+
+    match edit_services(&services) {
+        Ok(_) => (StatusCode::OK, "Services edited successfully").into_response(),
+        Err(e) => {
+            error!("Failed to edit services: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to edit services: {}", e)).into_response()
+        }
     }
 }
