@@ -51,15 +51,27 @@ pub fn add_services(services: &[NewService]) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn edit_services( services: &[EditService]) -> Result<(), Box<dyn Error>> {
+pub fn edit_services(services: &[EditService]) -> Result<(), Box<dyn Error>> {
     let mut conn = db_connection()?;
 
     for service in services {
-        let query = r"UPDATE Services SET Name = :name, Description = :description, Price = :price, Duration = :duration
-        WHERE ServiceID = :service_id";
+        // Check if the record exists
+        let check_query = "SELECT COUNT(*) FROM Services WHERE ServiceID = :service_id";
+        let count: i64 = conn.exec_first(check_query, params! {
+            "service_id" => &service.service_id,
+        })?.unwrap_or(0);
+
+        if count == 0 {
+            error!("No service found with ID {}", service.service_id);
+            return Err(Box::new(std::io::Error::new(std::io::ErrorKind::NotFound, format!("No service found with ID {}", service.service_id))));
+        }
+
+        let update_query = r"UPDATE Services SET Name = :name, Description = :description, Price = :price, Duration = :duration
+                             WHERE ServiceID = :service_id";
         let current_datetime: DateTime<Utc> = Utc::now();
         let formatted_datetime = current_datetime.format("%Y-%m-%d %H:%M:%S").to_string();
-        match conn.exec_drop(query, params! {
+
+        match conn.exec_drop(update_query, params! {
             "service_id" => &service.service_id,
             "name" => &service.name,
             "description" => &service.description,
