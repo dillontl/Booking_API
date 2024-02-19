@@ -4,70 +4,10 @@ use axum::{
     http::{self, request::Parts, StatusCode},
     response::{IntoResponse, Response},
 };
-use chrono::Duration;
 use firebase_auth::{FirebaseAuthState};
-use serde::{Deserialize, Serialize};
-use serde_json::{Map, Value};
 use tracing::debug;
+pub use crate::models::users_model::FirebaseUser;
 
-#[derive(Debug)]
-pub struct JwkConfiguration {
-    pub jwk_url: String,
-    pub audience: String,
-    pub issuer: String,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct KeyResponse {
-    pub keys: Vec<JwkKey>,
-}
-
-#[derive(Clone, Debug, Deserialize)]
-pub struct JwkKey {
-    pub e: String,
-    pub alg: String,
-    pub kty: String,
-    pub kid: String,
-    pub n: String,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct FirebaseUser {
-    pub iss: String,
-    pub aud: String,
-    pub sub: String,
-    pub iat: u64,
-    pub exp: u64,
-    pub auth_time: u64,
-    pub user_id: String,
-    pub provider_id: Option<String>,
-    pub name: Option<String>,
-    pub picture: Option<String>,
-    pub email: Option<String>,
-    pub email_verified: Option<bool>,
-    pub firebase: FirebaseProvider,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct FirebaseProvider {
-    sign_in_provider: String,
-    identities: Map<String, Value>,
-}
-
-#[derive(Debug, Clone)]
-pub struct JwkKeys {
-    pub keys: Vec<JwkKey>,
-    pub max_age: Duration,
-}
-
-#[derive(Debug)]
-pub enum PublicKeysError {
-    NoCacheControlHeader,
-    MaxAgeValueEmpty,
-    NonNumericMaxAge,
-    NoMaxAgeSpecified,
-    CannotParsePublicKey,
-}
 fn get_bearer_token(header: &str) -> Option<String> {
     let prefix_len = "Bearer ".len();
 
