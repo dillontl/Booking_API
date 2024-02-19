@@ -31,8 +31,6 @@ pub struct JwkKey {
     pub n: String,
 }
 
-/// The Jwt claims decoded from the user token. Can also be viewed as the Firebase User
-/// information.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct FirebaseUser {
     pub iss: String,
