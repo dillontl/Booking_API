@@ -6,8 +6,9 @@ use axum::{
 use log::error;
 use crate::models::services_model::{DeleteServicesInput, EditServicesInput, ServicesInput};
 use crate::services::services_service::{add_services, delete_services, edit_services, get_services};
+use crate::middlewares::auth::FirebaseUser;
 
-pub async fn get_services_handler() -> impl IntoResponse {
+pub async fn get_services_handler(_user: FirebaseUser) -> impl IntoResponse {
     match get_services().await {
         Ok(services) => (StatusCode::OK, Json(services)).into_response(),
         Err(e) => {
@@ -17,7 +18,10 @@ pub async fn get_services_handler() -> impl IntoResponse {
     }
 }
 
-pub async fn add_services_handler(Json(services_input): Json<ServicesInput>) -> impl IntoResponse {
+pub async fn add_services_handler(
+    _user: FirebaseUser,
+    Json(services_input): Json<ServicesInput>
+) -> impl IntoResponse {
     let services = match services_input {
         ServicesInput::Single(service) => vec![service],
         ServicesInput::Multiple(services) => services,
@@ -32,7 +36,10 @@ pub async fn add_services_handler(Json(services_input): Json<ServicesInput>) -> 
     }
 }
 
-pub async fn edit_services_handler(Json(edit_services_input): Json<EditServicesInput>) -> impl IntoResponse {
+pub async fn edit_services_handler(
+    _user: FirebaseUser,
+    Json(edit_services_input): Json<EditServicesInput>
+) -> impl IntoResponse {
     let services = match edit_services_input {
         EditServicesInput::Single(service) => vec![service],
         EditServicesInput::Multiple(services) => services,
@@ -47,7 +54,10 @@ pub async fn edit_services_handler(Json(edit_services_input): Json<EditServicesI
     }
 }
 
-pub async fn delete_services_handler(Json(delete_services_input): Json<DeleteServicesInput>) -> impl IntoResponse {
+pub async fn delete_services_handler(
+    _user: FirebaseUser,
+    Json(delete_services_input): Json<DeleteServicesInput>
+) -> impl IntoResponse {
     let services = match delete_services_input {
         DeleteServicesInput::Single(service) => vec![service],
         DeleteServicesInput::Multiple(services) => services,

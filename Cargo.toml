@@ -20,3 +20,5 @@ futures-util = "0.3.30"
 reqwest = "0.11.24"
 thiserror = "1.0.57"
 log = { version = "0.4.20", features = [] }
+firebase-auth = "0.4.2"
+tracing = "0.1.40"
